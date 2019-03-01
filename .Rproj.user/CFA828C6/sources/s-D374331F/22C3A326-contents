@@ -1,0 +1,84 @@
+library(rvest)
+library(httr)
+library(googlesheets)
+library(tidyverse)
+
+
+#............................................................sign into google
+gs_auth(new_user = TRUE)
+
+#............................................................assign url for scraping
+
+url <- "http://missingmigrants.iom.int/latest-global-figures" 
+
+#scrape table
+deaths_17 <- read_html(url) %>%
+  html_nodes("table") %>%
+  .[[1]] %>%
+  html_table()
+
+#scrape title
+data_table_title <- read_html(url) %>% 
+  html_nodes('div+ .rtecenter strong') %>% 
+  html_text()
+
+#create migrant table google sheet
+migrant_sheet <- gs_new(title = data_table_title, 
+       ws_title = "Migrant Fatalities Worldwide, 2017", 
+       input = deaths_17)
+
+
+###............................................................................Create metadata sheet
+#source, methodology, date of dataset, location, caveats and comments (PLUS HEADERS FOR EACH) 
+
+metho_url <- 'http://missingmigrants.iom.int/methodology' 
+
+#methodology
+metho_head <- read_html(metho_url) %>% 
+  html_nodes('.page-header') %>% 
+  html_text()
+
+metho <- metho_head <- read_html(metho_url) %>% 
+  html_nodes('.rtejustify:nth-child(8) span , .rtejustify:nth-child(7) strong , .rtejustify:nth-child(5) span , .rtejustify:nth-child(4) , .rtejustify:nth-child(3) strong') %>% 
+  html_text()
+
+#Sources
+sources_head <- "Sources"
+
+sources_text <- read_html(metho_url) %>% 
+  html_nodes('.rtejustify:nth-child(13) span , .rtejustify:nth-child(12) span , .rtejustify:nth-child(11) span , .rtejustify:nth-child(10) strong') %>% 
+  html_text()
+
+#dataset date
+date_of_dataset <- read_html(url) %>% 
+  html_nodes('.even div span') %>% 
+  html_text()
+
+#Location
+Location_title<- "Location:"
+Location <- "Global" 
+
+#caveats and comments + header
+cc_head <- "Caveats and Comments"
+
+c_c <- read_html(url) %>% 
+  html_nodes('.even div .rtejustify') %>% 
+  html_text()
+
+#########################################################add sheet and populate metadata
+####apologies for the repetition - wasn't working and didnt have time to debug
+
+migrant_sheet <- gs_ws_new(migrant_sheet, ws_title = "metadata_1")
+
+#populate metadatasheet with page values
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = metho, anchor = 'A2')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = Location_title, anchor = 'A8')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = Location, anchor = 'A9')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = sources_head, anchor = 'A11')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = sources_text, anchor = 'A12')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = cc_head, anchor = 'A17')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1",input = c_c, anchor = 'A18')
+gs_edit_cells(ss = migrant_sheet, ws = "metadata_1", input = metho_head, anchor = 'A1')
+
+#go to https://docs.google.com/spreadsheets/u/0/ to view datasheet
+
