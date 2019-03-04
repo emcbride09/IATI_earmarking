@@ -25,9 +25,14 @@ n$earmarkingtype <- as.factor(n$earmarkingtype)
 #using code from https://gist.github.com/hrbrmstr/035f998517de2384e9962cff7df874bd
 
 #gg <- ggplot(data=df, aes(y=bucket, yend=bucket))
-options(scipen = 10 )
+#setting scipen removes scientific notation
+options(scipen = 10)
 
-plot1 <- ggplot(n, aes(x = orgttype, xend = orgttype))
+plot1 <- ggplot(n, aes(x = orgttype, xend = orgttype)) +
+  labs(title = 'Donor Funds Earmarking 2015-2018', 
+       subtitle = 'Breakdown of Earmarking Type From Initial Funds Release', 
+       x = 'Organisation Type',
+       y = '') 
 
 #budget bars with low alpha
 
@@ -46,10 +51,19 @@ iati_plot_base <- gm + facet_grid(cols = vars(year)) +
 #theme for bar plot
 
 iati_plot_base + theme(
-  axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1, family = 'Arial', size = 11),
-  axis.text.y = element_text(family = 'Arial', size = 11),
-  plot.background = element_rect(fill = '8AA1B1')
+  axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1, family = 'Arial', size = 11, color = 'Black'),
+  axis.text.y = element_text(family = 'Arial', size = 11, color = 'Black'),
+  plot.background = element_rect(fill = '#8AA1B1'),
+  panel.background = element_rect(fill = '#8AA1B1'),
+  panel.grid.major.y = element_line(colour = 'grey20'),
+  panel.grid.minor.y = element_line(colour = 'grey50'),
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.x = element_blank(),
+  strip.background = element_rect(fill = '#8AA1B1'),
+  strip.text = element_text(size = 20, family = 'Arial')
+  
+) + guides(colour = guide_legend(overide.aes = list(size = 1)))
   
   
-)
+  
 
