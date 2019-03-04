@@ -25,21 +25,31 @@ n$earmarkingtype <- as.factor(n$earmarkingtype)
 #using code from https://gist.github.com/hrbrmstr/035f998517de2384e9962cff7df874bd
 
 #gg <- ggplot(data=df, aes(y=bucket, yend=bucket))
-options(scipen = -10 )
+options(scipen = 10 )
+
 plot1 <- ggplot(n, aes(x = orgttype, xend = orgttype))
 
-#gg <- gg + geom_segment(aes(x=budgeted, xend=0, color="Budgeted"), size=10)
+#budget bars with low alpha
 
-plot2 <- plot1 + geom_segment(aes(y = annualtotal, yend=0, color= "Total budget"), alpha = 0.1, size = 14)
+plot2 <- plot1 + geom_segment(aes(y = annualtotal, yend=0, color= "Total budget"), alpha = 0.2, size = 30) +
+  scale_color_manual(values = '#CEE0DC')
 
-#gg <- gg + geom_segment(aes(x=actual, xend=0, color="Actual"), size=5)
+#earmarking bars
 
-gm <- plot2 + geom_segment(aes(y = emamount, yend=0, color = earmarkingtype), size = 5)
+gm <- plot2 + geom_col(aes(y = emamount, fill = earmarkingtype), size = 5) +
+  scale_fill_manual(values = c('#DB2B39', '#99D5C9', '#3AAFB9', '#074F57', '#CEE0DC'))
 
-iati_plot_base <- gm + facet_grid(cols = vars(year))
+iati_plot_base <- gm + facet_grid(cols = vars(year)) +
+  scale_y_continuous(breaks = c(10000000, 20000000, 30000000), labels = c("$10 million", "$20 million", "$30 million")) 
 
-iati_plot_base
 
-+ theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
+#theme for bar plot
 
+iati_plot_base + theme(
+  axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1, family = 'Arial', size = 11),
+  axis.text.y = element_text(family = 'Arial', size = 11),
+  plot.background = element_rect(fill = '8AA1B1')
+  
+  
+)
 
